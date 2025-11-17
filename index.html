@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мое Приложение (с QR-модальным окном)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4; 
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #fff; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative; 
+            padding-bottom: 80px; 
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header-greeting {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-icon {
+            font-size: 24px;
+            color: #555;
+        }
+
+        .top-nav {
+            background-color: #ff6600; 
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            width: 70px;
+        }
+
+        .nav-icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            text-align: center;
+            color: #ff6600;
+            font-weight: bold;
+            line-height: 1.2;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        
+        .icon-1 { background-color: #FFB74D; color: #fff; }
+        .icon-2 { background-color: #BA68C8; color: #fff; }
+        .icon-3 { background-color: #fff; }
+        .icon-4 { background-color: #81C784; color: #fff; }
+
+
+        .nav-item span {
+            margin-top: 8px;
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 15px;
+            background-color: #f4f4f4;
+            flex-grow: 1;
+        }
+
+        .bonus-card {
+            color: #fff;
+            background-color: #00c853;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .bonus-info {
+            background-color: #00c853;
+            flex: 1;
+            padding-right: 15px;
+        }
+
+        .bonus-info h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .bonus-info p {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            margin: 8px 0 0 0;
+            word-break: break-all;
+        }
+
+        .qr-code {
+            background-color: #00c853;
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        
+        .qr-code canvas {
+            background-color: #00c853;
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .action-buttons { display: flex; gap: 15px; margin-bottom: 15px; }
+        .btn { flex: 1; padding: 20px 15px; border-radius: 12px; text-decoration: none; color: white; font-weight: bold; font-size: 15px; text-align: left; display: flex; align-items: center; gap: 10px; }
+        .btn-icon { font-size: 24px; }
+        .btn-green { background-color: #00c853; }
+        .btn-orange { background-color: #ff6600; }
+        .info-card { background-color: #fff; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-decoration: none; }
+        .info-card-text h3 { margin: 0; font-size: 16px; color: #333; }
+        .info-card-text p { margin: 4px 0 0; font-size: 13px; color: #777; }
+        .info-card-icon { font-size: 36px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 50; 
+        }
+
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #888; font-size: 12px; }
+        .bottom-nav-item .icon { font-size: 24px; margin-bottom: 4px; }
+        .bottom-nav-item.logo .icon { font-size: 40px; color: #00c853; margin-top: -15px; }
+        .bottom-nav-item.logo span { display: none; }
+        .bottom-nav-item.active { color: #ff6600; }
+
+
+        .modal-hidden {
+            display: none !important;
+        }
+
+        #qrModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100; 
+            
+            display: flex;
+            justify-content: center; 
+            align-items: flex-end;   
+        }
+
+        .modal-content-bottom {
+            background-color: #fff;
+            width: 100%; 
+            height: 60%; 
+            border-radius: 12px 12px 0 0; 
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+        }
+
+        
+        .modal-id-text {
+            color: #ff6600;
+            font-size: 14px; 
+            font-weight: bold;
+            margin: 0 0 10px 0; 
+            word-break: break-all; 
+        }
+
+        #largeQrCanvas {
+            width: 100% !important; 
+            max-width: 250px; 
+            height: auto !important;
+            border-radius: 8px;
+            margin-bottom: 15px; 
+        }
+
+        .modal-globus-text {
+            color: #00c853; 
+            font-size: 24px; 
+            font-weight: bold; 
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <span class="header-greeting">Привет, Айбек</span>
+            <div class="header-icons">
+                <span class="header-icon">👤</span>
+                <span class="header-icon">🔔</span>
+                <span class="header-icon">🛒</span>
+            </div>
+        </header>
+
+        <nav class="top-nav">
+            <a href="#" class="nav-item">
+                <div class="nav-icon-circle icon-1">БИЗДИН<br>КОМАНДАГА<br>КОШУЛ</div>
+                <span>Работа</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon-circle icon-2">АТАЙЫН<br>СУНУШТАР,<br>СЫЙЛЫКТАР</div>
+                <span>Важно</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon-circle icon-3">🍊</div> 
+                <span>Скидки</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon-circle icon-4">🏪</div>
+                <span>Онлайн</span>
+            </a>
+        </nav>
+
+        <main class="main-content">
+
+            <section class="bonus-card">
+                <div class="bonus-info">
+                    <h2>1 бонусов</h2>
+                    
+                </div>
+                <div class="qr-code" id="smallQrTrigger">
+                    <canvas id="qrCanvas" width="100" height="100"></canvas>
+                </div>
+                
+            </section>
+
+            <section class="action-buttons">
+                <a href="#" class="btn btn-green">
+                    <span class="btn-icon">🏷️</span>
+                    <span>Проверить цену</span>
+                </a>
+                <a href="#" class="btn btn-orange">
+                    <span class="btn-icon">🛒</span>
+                    <span>Выбрать любимые товары</span>
+                </a>
+            </section>
+            
+            <section class="info-cards">
+                <a href="#" class="info-card">
+                    <div class="info-card-text">
+                        <h3>Акционная газета</h3>
+                        <p>Будьте в курсе всех новинок и скидок!</p>
+                    </div>
+                    <span class="info-card-icon">🛍️</span>
+                </a>
+                <a href="#" class="info-card">
+                    <div class="info-card-text">
+                        <h3>Специальные предложения</h3>
+                        <p>Не упустите специальные предложения!</p>
+                    </div>
+                    <span class="info-card-icon">🎁</span>
+                </a>
+            </section>
+<p id="idBox">Загрузка...</p>
+        </main>
+
+        <footer class="bottom-nav">
+            <a href="#" class="bottom-nav-item active">
+                <span class="icon">🏠</span>
+                <span>Главная</span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <span class="icon">🔍</span>
+                <span>Доставка</span>
+            </a>
+            <a href="#" class="bottom-nav-item logo">
+                <span class="icon">G</span>
+                <span></span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <span class="icon">🏷️</span>
+                <span>Акции</span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <span class="icon">✨</span>
+                <span>Интересное</span>
+            </a>
+        </footer>
+
+
+        <div id="qrModal" class="modal-hidden">
+            <div class="modal-content-bottom">
+                
+                <p class="modal-id-text"></p>
+
+                <p class="modal-globus-text">GLOBUS</p>
+                
+                <canvas id="largeQrCanvas" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+
+    </div> <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+    <script>
+      function randomDigits(n) {
+        let s = '';
+        for (let i = 0; i < n; i++) s += String(Math.floor(Math.random() * 10));
+        return s;
+      }
+
+      function calcCheckDigit(number) {
+        let sum = number.split('').reduce((a, ch) => a + Number(ch), 0);
+        return String(sum % 10);
+      }
+
+      function makeId() {
+        const prefix = '27000';
+        const mid = randomDigits(7);
+        const partial = prefix + mid;
+        return partial + calcCheckDigit(partial);
+      }
+
+      const idBox = document.getElementById('idBox');
+      const smallCanvas = document.getElementById('qrCanvas');
+
+      const qrModal = document.getElementById('qrModal');
+      const smallQrTrigger = document.getElementById('smallQrTrigger');
+      const largeQrCanvas = document.getElementById('largeQrCanvas');
+      const modalIdText = document.querySelector('.modal-id-text');
+      
+      let currentGeneratedId = ''; 
+
+
+      // --- Функция рендеринга ---
+      function renderFor(id) {
+        currentGeneratedId = id; 
+
+        idBox.textContent = id; 
+        
+        new QRious({
+          element: smallCanvas,
+          value: id,
+          size: 100,
+          padding: 0
+        });
+      }
+
+      window.addEventListener('load', () => {
+        renderFor(makeId());
+      });
+      
+
+      smallQrTrigger.addEventListener('click', () => {
+        if (!currentGeneratedId) return; 
+        
+        modalIdText.textContent = currentGeneratedId;
+        
+        new QRious({
+          element: largeQrCanvas,
+          value: currentGeneratedId,
+          size: 300, 
+          padding: 10 
+        });
+
+        qrModal.classList.remove('modal-hidden'); 
+      });
+
+      qrModal.addEventListener('click', (e) => {
+        if (e.target === qrModal) { 
+          qrModal.classList.add('modal-hidden');
+        }
+      });
+
+    </script>
+    
+</body>
+</html>
